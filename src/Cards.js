@@ -1,16 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import "./Cards.css"
 import TinderCard from 'react-tinder-card'
+import db from './firebase'
 
 function Cards() {
-    const [persons,setPersonss]=useState([{
-        username:"elon",
-        image:"https://www.bing.com/th?id=OIP.wI7SgTdiBDdXkhG0DbrAmwHaEl&w=236&h=137&c=8&rs=1&qlt=90&o=6&dpr=1.25&pid=3.1&rm=2"
-    },{
-        username:"elon",
-        image:"https://www.bing.com/th?id=OIP.wI7SgTdiBDdXkhG0DbrAmwHaEl&w=236&h=137&c=8&rs=1&qlt=90&o=6&dpr=1.25&pid=3.1&rm=2"
-    }
-])
+const [persons,setPersons]=useState([])
 const onSwipe = (direction) => {
     console.log('You swiped: ' + direction)
   }
@@ -18,14 +12,24 @@ const onSwipe = (direction) => {
   const onCardLeftScreen = (myIdentifier) => {
     console.log(myIdentifier + ' left the screen')
   }
+
+  useEffect(() => {
+     
+    db.collection("persons").onSnapshot(snapshot=>{
+        setPersons(snapshot.docs.map(doc=>({
+            id:doc.id,
+            person:doc.data()
+        })))
+    })
+  }, [])
     return (
         <div>
             
            <div className="cards__container">
            {
-                    persons.map(person=>(
+                    persons.map(({id,person})=>(
                     
-                        <TinderCard className="swipe" key={person.name} onSwipe={onSwipe} onCardLeftScreen={() => onCardLeftScreen('fooBar')} preventSwipe={['right', 'left']}>
+                        <TinderCard className="swipe" key={id} onSwipe={onSwipe} onCardLeftScreen={() => onCardLeftScreen('fooBar')} preventSwipe={['right', 'left']}>
                             <div
                             style={{backgroundImage:`url(${person.image})`}}
                              className="card">
